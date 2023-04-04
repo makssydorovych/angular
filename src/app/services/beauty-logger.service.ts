@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 type SeverityType = 'error' | 'success' | 'info' | 'warning'
 
