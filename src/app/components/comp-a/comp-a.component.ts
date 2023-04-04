@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ValueService} from "../../services/value.service";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 
 
 @Component({
@@ -10,15 +10,13 @@ import {BehaviorSubject} from "rxjs";
 
 })
 export class CompAComponent implements OnInit {
-  value = 0
+  value$ = new Observable();
 
   constructor(private valueService: ValueService) {
   }
 
   ngOnInit(): void {
-    this.valueService.value$.subscribe((value)=>{
-    this.value = value
-    })
+   this.value$ = this.valueService.value$
   }
 
   addValueHandler() {
