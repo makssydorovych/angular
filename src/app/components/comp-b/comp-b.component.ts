@@ -1,15 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {ValueService} from "../../services/value.service";
-
-
 @Component({
-  selector: 'ang-comp-a',
-  templateUrl: './comp-a.component.html',
-  styleUrls: ['./comp-a.component.scss'],
-
+  selector: 'ang-comp-b',
+  templateUrl: './comp-b.component.html',
+  styleUrls: ['./comp-b.component.scss']
 })
-export class CompAComponent implements OnInit {
-
+export class CompBComponent implements OnInit{
   value = 0
 
   constructor(private valueService: ValueService) {
@@ -18,7 +14,7 @@ export class CompAComponent implements OnInit {
   ngOnInit(): void {
     this.value = this.valueService.value
   }
-  addValueHandler(){
-    this.valueService.add()
+  decValueHandler(){
+    this.valueService.dec()
   }
 }
