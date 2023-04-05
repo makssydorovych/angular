@@ -1,7 +1,6 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Todo, TodosService} from "../../services/todos.service";
-import {HttpErrorResponse} from "@angular/common/http";
-import {Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 
 
 @Component({
@@ -9,8 +8,8 @@ import {Subscription} from "rxjs";
   templateUrl: './todos.component.html',
   styleUrls: ['./todos.component.scss']
 })
-export class TodosComponent implements OnInit, OnDestroy {
-  todos: Todo[] = []
+export class TodosComponent implements OnInit {
+  todos$!: Observable<Todo[]>
   error = ''
   subscription: Subscription = new Subscription()
 
@@ -18,40 +17,39 @@ export class TodosComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.todos$ =  this.todosService.todos$
     this.getTodos()
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe()
-  }
+
 
   getTodos() {
-    this.subscription.add(this.subscription = this.todosService.getTodos().subscribe({
-      next: (res: Todo[]) => {
-        this.todos = res
-      },
-      error: (error: HttpErrorResponse) => {
-        this.error = error.message
-      }
-    }))
+   this.todosService.getTodos()
+    // this.subscription.add(this.subscription = this.todosService.getTodos().subscribe({
+    //   next: (res: Todo[]) => {
+    //     this.todos = res
+    //   },
+    //   error: (error: HttpErrorResponse) => {
+    //     this.error = error.message
+    //   }
+    // }))
   }
 
   createTodo() {
     const randomNumber = Math.floor(Math.random() * 100)
     const title = 'Angular' + randomNumber
-    this.subscription.add(this.todosService.createTodo(title)
-      .subscribe(res => {
-        const newTodo = res.data.item
-        this.todos.unshift(newTodo)
-      }))
+    this.todosService.createTodo(title)
+    // this.subscription.add(this.todosService.createTodo(title)
+    //   .subscribe(res => {
+    //     const newTodo = res.data.item
+    //     this.todos.unshift(newTodo)
+    //   }))
   }
 
   deleteTodo() {
-    const todoId = 'e430ccac-9d00-45ca-aec0-e4f870ba92ad'
-    this.subscription.add(this.todosService.deleteTodo(todoId)
-      .subscribe(() => {
-        this.todos = this.todos.filter((tl) => tl.id !== todoId)
-      }))
+    const todoId = '8f7aa80e-0d41-423e-8235-e7f4ee5be369'
+    this.todosService.deleteTodo(todoId)
+
   }
 }
 

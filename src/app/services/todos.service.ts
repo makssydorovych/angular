@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {BehaviorSubject, map, Observable} from "rxjs";
 import {environment} from "../../environments/environment";
 
 export interface Todo {
@@ -22,6 +22,7 @@ export interface BaseResponse<T = {}> {
   providedIn: 'root'
 })
 export class TodosService {
+  todos$: BehaviorSubject<Todo[]> = new BehaviorSubject<Todo[]>([])
   httpOptions = {
     withCredentials: true,
     headers: {
@@ -32,23 +33,44 @@ export class TodosService {
   constructor(private http: HttpClient) {
   }
 
-  getTodos(): Observable<Todo[]> {
-    return this.http.get<Todo[]>(`${environment.baseUrl}/todo-lists`,
-      this.httpOptions)
+  getTodos() {
+    this.http.get<Todo[]>(`${environment.baseUrl}/todo-lists`,
+      this.httpOptions).subscribe((todos) => {
+      this.todos$.next(todos)
+    })
   }
 
-  createTodo(title: string): Observable<BaseResponse<{ item: Todo }>> {
-    return this.http.post<BaseResponse<{ item: Todo }>>(
+  createTodo(title: string) {
+    this.http.post<BaseResponse<{ item: Todo }>>(
       `${environment.baseUrl}/todo-lists`,
       {title}, this.httpOptions)
+      .pipe(
+        map(res => {
+          const newTodo = res.data.item
+          const stateTodos = this.todos$.getValue()
+          return [newTodo, ...stateTodos]
+        })
+      )
+      .subscribe(todos => {
+
+        this.todos$.next(todos)
+      })
 
   }
 
-  deleteTodo(todoId: string): Observable<BaseResponse> {
+  deleteTodo(todoId: string) {
 
-    return this.http.delete<BaseResponse>(
+    this.http.delete<BaseResponse>(
       `${environment.baseUrl}/todo-lists/${todoId}`,
       this.httpOptions)
+      .pipe(
+        map(() => {
+          return this.todos$.getValue().filter(tl => tl.id !== todoId)
+        })
+      ).subscribe(todos => {
+
+      this.todos$.next(todos)
+    })
 
   }
 }
